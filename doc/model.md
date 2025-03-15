@@ -1,7 +1,5 @@
 ```mermaid
 classDiagram
-    %% 集約境界を破線の囲みで表現
-    
     %% ユーザー (Customer) 集約
     class Customer {
         <<aggregate root>>
@@ -10,6 +8,7 @@ classDiagram
         +String passwordHash
         +String firstName
         +String lastName
+        +Address address
         +Boolean isActive
         +DateTime createdAt
         +login()
@@ -17,26 +16,15 @@ classDiagram
         +resetPassword()
         +updateProfile()
     }
-    
-    Customer "1" -- "*" Address : has
-    Customer "1" -- "*" PaymentMethod : has
+
+    Customer "1" -- "1" Address : has
     
     class Address {
-        +String addressId
         +String street
         +String city
         +String state
         +String postalCode
         +String country
-        +Boolean isDefault
-    }
-    
-    class PaymentMethod {
-        +String paymentMethodId
-        +String type
-        +String details
-        +Boolean isDefault
-        +DateTime createdAt
     }
     
     %% 管理アカウント (Admin) 集約
@@ -83,9 +71,9 @@ classDiagram
     }
     
     %% 在庫 (Stock) 集約
-    class Inventory {
+    class Stock {
         <<aggregate root>>
-        +String inventoryId
+        +String StockId
         +String productId
         +Integer stockQuantity
         +DateTime lastUpdated
@@ -116,7 +104,7 @@ classDiagram
         +calculateSubtotal()
     }
     
-    %% 注文 (Order) 集約
+    %% 注文 (Order) 集約 - 簡略化
     class Order {
         <<aggregate root>>
         +String orderId
@@ -129,7 +117,6 @@ classDiagram
     }
     
     Order "1" -- "*" OrderItem : contains
-    Order "1" -- "1" OrderAddress : ships to
     Order "1" -- "1" Payment : has
     
     class OrderItem {
@@ -141,21 +128,12 @@ classDiagram
         +Double subtotal
     }
     
-    class OrderAddress {
-        +String street
-        +String city
-        +String state
-        +String postalCode
-        +String country
-    }
-    
     class Payment {
         +String paymentId
         +Double amount
         +String status
         +DateTime paymentDate
-        +String paymentMethodId
-        +String paymentMethodType
+        +String paymentType
         +processPayment()
     }
     
@@ -164,10 +142,9 @@ classDiagram
     Customer <.. Order : references customerId
     Product <.. CartItem : references productId
     Product <.. OrderItem : references productId
-    Product <.. Inventory : references productId
-    PaymentMethod <.. Payment : references paymentMethodId
+    Product <.. Stock : references productId
     
     %% 管理関連
     Admin ..> Product : manages
-    Admin ..> Inventory : manages
+    Admin ..> Stock : manages
     ```
